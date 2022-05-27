@@ -9,6 +9,7 @@ int encode(const std::string &path, byte_t offset)
 {
 	std::ifstream in = std::ifstream(path, std::ios::in | std::ios::binary);
 	std::ofstream out;
+	byte_t byte = 0;
 	if (!in)
 	{
 		std::cerr << "Failed to open the input file: \""
@@ -22,10 +23,8 @@ int encode(const std::string &path, byte_t offset)
 				  << path << "\"." << std::endl;
 		goto FAIL_RET;
 	}
-	byte_t byte;
-	while (in)
+	while (in.read(&byte, 1))
 	{
-		in.read(&byte, 1);
 		out.write(&(byte += offset), 1);
 	}
 	return 1;
@@ -55,7 +54,7 @@ int main(int argc, char *argv[])
 				ss.clear();
 				continue;
 			}
-			if (encode(argv[i + 1], (offset & 255) - 128) == 1)
+			if (encode(argv[i + 1], offset % 128) == 1)
 			{
 				std::cout << "Success." << std::endl;
 			}
@@ -80,7 +79,7 @@ int main(int argc, char *argv[])
 				std::cerr << "Invalid input of the offset!" << std::endl;
 				std::cout << "Input the offset of each byte: ";
 			}
-			std::getline(std::cin, path); // blank
+			std::getline(std::cin, path); // end-line
 			std::cout << "Input the path of the file to encode: ";
 			if (!std::getline(std::cin, path))
 			{
@@ -92,7 +91,7 @@ int main(int argc, char *argv[])
 				std::cerr << "Fatal error: Failed to write data into the string!" << std::endl;
 				goto ERR_RET;
 			}
-			if (encode(path, (offset & 255) - 128) == 1)
+			if (encode(path, offset % 128) == 1)
 			{
 				std::cout << "Success." << std::endl;
 			}
